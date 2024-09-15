@@ -14,10 +14,17 @@ export default function Whiteboard(): React.ReactElement {
 	React.useEffect(() => {
 		socketService.connect()
 
-		socketService.socket?.on('draw', (data: { x: number; y: number }) => {
+		socketService.socket?.on('draw', (data) => {
+			const { x, y, isDrawing } = data
 			if (!contextRef.current) return
-			contextRef.current.lineTo(data.x, data.y)
-			contextRef.current.stroke()
+
+			if (isDrawing) {
+				contextRef.current.lineTo(x, y)
+				contextRef.current.stroke()
+			} else {
+				contextRef.current.beginPath()
+				contextRef.current.moveTo(x, y)
+			}
 		})
 
 		return () => {
@@ -33,39 +40,54 @@ export default function Whiteboard(): React.ReactElement {
 		contextRef.current = context
 	}, [])
 
-	const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+	React.useEffect(() => {
+		window.addEventListener('resize', () => {
+			const canvas = canvasRef.current
+			if (!canvas) return
+			canvas.width = window.innerWidth
+			canvas.height = window.innerHeight
+		}, false)
+	}, [])
+
+	React.useEffect(() => {
+		if (!isDrawing) return console.log('Not drawing')
+		console.log('Drawing')
+	}, [isDrawing])
+
+	const getCoordinates = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
 		const canvas = canvasRef.current
 		if (!canvas) return
 
-		const context = canvas.getContext('2d')
-		if (!context) return
+		const rect = canvas.getBoundingClientRect()
+		if (event.type === 'mousemove' || event.type === 'mousedown' || event.type === 'mouseup' || event.type === 'mouseout') {
+			return { x: (event as React.MouseEvent).clientX - rect.left, y: (event as React.MouseEvent).clientY - rect.top }
+		} else if (event.type === 'touchmove' || event.type === 'touchstart' || event.type === 'touchend') {
+			return { x: (event as React.TouchEvent).touches[0].clientX - rect.left, y: (event as React.TouchEvent).touches[0].clientY - rect.top }
+		}
+		return null
+	}
 
-		context.beginPath()
+	const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+		const coordinates = getCoordinates(event)
+		if (!coordinates) return
+
+		contextRef.current?.beginPath()
+		contextRef.current?.moveTo(coordinates.x, coordinates.y)
 		setIsDrawing(true)
+
+		socketService.socket?.emit('draw', { x: coordinates.x, y: coordinates.y, isDrawing: false })
 	}
 
 	const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-		const canvas = canvasRef.current
-		if (!canvas || !isDrawing) return
+		if (!isDrawing) return
 
-		const context = canvas.getContext('2d')
-		if (!context) return
+		const coordinates = getCoordinates(event)
+		if (!coordinates) return
 
-		const rect = canvas.getBoundingClientRect()
-		let x, y
+		contextRef.current?.lineTo(coordinates.x, coordinates.y)
+		contextRef.current?.stroke()
 
-		if (event.type === 'mousemove') {
-			x = (event as React.MouseEvent).clientX - rect.left
-			y = (event as React.MouseEvent).clientY - rect.top
-		} else if (event.type === 'touchmove') {
-			x = (event as React.TouchEvent).touches[0].clientX - rect.left
-			y = (event as React.TouchEvent).touches[0].clientY - rect.top
-		}
-
-		if (!x || !y) return
-		context.lineTo(x, y)
-		context.stroke()
-		socketService.socket?.emit('draw', { x, y })
+		socketService.socket?.emit('draw', { x: coordinates.x, y: coordinates.y, isDrawing: true })
 	}
 
 	const stopDrawing = () => {
