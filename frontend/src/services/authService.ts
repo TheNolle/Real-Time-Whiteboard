@@ -7,6 +7,7 @@ class AuthService {
 		const response = await axios.post(`${variables.api_url}/auth/login`, { email, password })
 		if (response.data.token) {
 			localStorage.setItem('userToken', response.data.token)
+			localStorage.setItem('username', response.data.user.username)
 		}
 		return response.data
 	}
@@ -15,6 +16,7 @@ class AuthService {
 		const response = await axios.post(`${variables.api_url}/auth/register`, { username, email, password })
 		if (response.data.token) {
 			localStorage.setItem('userToken', response.data.token)
+			localStorage.setItem('username', response.data.user.username)
 		}
 		return response.data
 	}
@@ -24,7 +26,10 @@ class AuthService {
 	}
 
 	getCurrentUser() {
-		return localStorage.getItem('userToken')
+		return {
+			token: localStorage.getItem('userToken'),
+			username: localStorage.getItem('username'),
+		}
 	}
 
 	isAuthenticated() {

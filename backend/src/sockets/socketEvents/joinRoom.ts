@@ -1,11 +1,10 @@
-import { Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import Room from '../../models/Room'
 import { socketRoomMap } from '../socketHandler'
 
-export const handleJoinRoom = async (socket: Socket, roomId: string): Promise<void> => {
+export const handleJoinRoom = async (io: Server, socket: Socket, roomId: string, username: string): Promise<void> => {
 	socket.join(roomId)
 
-	// Track the room this socket is in
 	if (!socketRoomMap[socket.id]) {
 		socketRoomMap[socket.id] = []
 	}
@@ -19,10 +18,15 @@ export const handleJoinRoom = async (socket: Socket, roomId: string): Promise<vo
 		room = new Room({ roomId, drawingData: [], users: [] })
 	}
 
-	room.users.push(socket.id)
+	// Add the user with the username
+	room.users.push({ socketId: socket.id, username })
 	await room.save()
 
 	// Load existing drawing data for the new client
 	socket.emit('loadCanvas', room.drawingData)
-	console.log(`Client ${socket.id} joined room ${roomId}`)
+
+	// Emit the updated user list to all clients in the room
+	const usersInRoom = room.users.map(user => ({ username: user.username, socketId: user.socketId }))
+	io.to(roomId).emit('updateUsers', usersInRoom)
+	console.log(`Client ${socket.id} (username: ${username}) joined room ${roomId}`)
 }

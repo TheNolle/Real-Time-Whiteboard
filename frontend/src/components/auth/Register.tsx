@@ -47,7 +47,7 @@ export default function Register(): React.ReactElement {
 				return
 			}
 			const data = await authService.register(username, email, password)
-			login(data.token)
+			login(data.token, data.user.username)
 			toast.success('Registered successfully')
 			navigate('/')
 		} catch (error: any) {

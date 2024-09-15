@@ -15,12 +15,12 @@ export const setupSocket = (httpServer: ReturnType<typeof createServer>): void =
 		console.log('Client connected:', socket.id)
 
 		// Client joins a room
-		socket.on('joinRoom', (roomId: string) => handleJoinRoom(socket, roomId))
-
+		socket.on('joinRoom', ({ roomId, username }) => {
+			handleJoinRoom(io, socket, roomId, username)
+		})
 		// Handle drawing data
 		socket.on('draw', (data) => handleDraw(socket, data))
-
 		// Client disconnects
-		socket.on('disconnect', () => handleDisconnect(socket))
+		socket.on('disconnect', () => handleDisconnect(io, socket))
 	})
 }

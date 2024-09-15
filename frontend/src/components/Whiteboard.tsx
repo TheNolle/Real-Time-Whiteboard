@@ -7,14 +7,19 @@ import '../styles/components/whiteboard.scss'
 // Services
 import socketService from '../services/socketService'
 
+// Components
+import UserDisplay from './UserDisplay'
+
 export default function Whiteboard(): React.ReactElement {
 	const [isDrawing, setIsDrawing] = React.useState<boolean>(false)
+	const [users, setUsers] = React.useState<{ socketId: string, username: string }[]>([])
 
 	const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
 	const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
 
 	const location = useLocation()
 	const roomId = new URLSearchParams(location.search).get('roomId')
+	const username = localStorage.getItem('username') || 'Anonymous'
 
 	React.useEffect(() => {
 		if (!roomId) {
@@ -23,7 +28,11 @@ export default function Whiteboard(): React.ReactElement {
 		}
 
 		socketService.connect()
-		socketService.socket?.emit('joinRoom', roomId)
+		socketService.socket?.emit('joinRoom', { roomId, username })
+
+		socketService.socket?.on('updateUsers', (userList: { socketId: string, username: string }[]) => {
+			setUsers(userList)
+		})
 
 		socketService.socket?.on('draw', (data) => {
 			const { x, y, isDrawing } = data
@@ -128,6 +137,7 @@ export default function Whiteboard(): React.ReactElement {
 				onTouchMove={draw}
 				onTouchEnd={stopDrawing}
 			/>
+			<UserDisplay users={users} />
 		</div>
 	)
 }

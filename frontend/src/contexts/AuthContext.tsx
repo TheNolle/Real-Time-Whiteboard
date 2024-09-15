@@ -5,7 +5,7 @@ import authService from '../services/authService'
 
 interface AuthContextProps {
 	isAuthenticated: boolean
-	login: (token: string) => void
+	login: (token: string, username: string) => void
 	logout: () => void
 }
 
@@ -18,8 +18,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }): JSX.E
 		setIsAuthenticated(authService.isAuthenticated())
 	}, [])
 
-	const login = (token: string): void => {
+	const login = (token: string, username: string): void => {
 		localStorage.setItem('userToken', token)
+		localStorage.setItem('username', username)
 		setIsAuthenticated(true)
 	}
 

@@ -1,0 +1,46 @@
+.user-display {
+	position: absolute;
+	top: 0;
+	right: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border-radius: 5px;
+
+	.user {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+
+		.avatar {
+			cursor: default;
+			width: 2rem;
+			height: 2rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-right: -1.25rem;
+			border-radius: 50%;
+			border: 2px solid #2980b9;
+			color: white;
+			background-color: #3498db;
+
+			&:not(:first-child) {
+				filter: brightness(0.5);
+			}
+		}
+	}
+
+	.more-users {
+		cursor: pointer;
+		padding-left: 1rem;
+		text-decoration: none;
+		color: #3498db;
+		transition: color 200ms;
+
+		&:hover {
+			color: #2980b9;
+		}
+	}
+}

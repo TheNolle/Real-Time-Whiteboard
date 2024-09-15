@@ -30,7 +30,7 @@ export default function Login(): React.ReactElement {
 			if (loading) return
 			setLoading(true)
 			const data = await authService.login(email, password)
-			login(data.token)
+			login(data.token, data.user.username)
 			toast.success('Logged in successfully')
 			navigate('/')
 		} catch (error: any) {
