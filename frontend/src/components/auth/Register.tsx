@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { validatePassword } from '../../utils/password'
 
 // Styles
@@ -47,6 +48,7 @@ export default function Register(): React.ReactElement {
 			}
 			const data = await authService.register(username, email, password)
 			login(data.token)
+			toast.success('Registered successfully')
 			navigate('/')
 		} catch (error: any) {
 			setError(error.response.data.message || 'Registration failed')

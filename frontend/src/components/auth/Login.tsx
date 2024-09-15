@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 // Styles
 import '../../styles/components/auth.scss'
@@ -30,6 +31,7 @@ export default function Login(): React.ReactElement {
 			setLoading(true)
 			const data = await authService.login(email, password)
 			login(data.token)
+			toast.success('Logged in successfully')
 			navigate('/')
 		} catch (error: any) {
 			setError(error.response.data.message || 'Login failed')
