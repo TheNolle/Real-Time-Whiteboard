@@ -1,4 +1,5 @@
 import React from 'react'
+import { useLocation } from 'react-router-dom'
 
 // Styles
 import '../styles/components/whiteboard.scss'
@@ -8,11 +9,21 @@ import socketService from '../services/socketService'
 
 export default function Whiteboard(): React.ReactElement {
 	const [isDrawing, setIsDrawing] = React.useState<boolean>(false)
+
 	const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
 	const contextRef = React.useRef<CanvasRenderingContext2D | null>(null)
 
+	const location = useLocation()
+	const roomId = new URLSearchParams(location.search).get('roomId')
+
 	React.useEffect(() => {
+		if (!roomId) {
+			console.error('Room ID not found')
+			return
+		}
+
 		socketService.connect()
+		socketService.socket?.emit('joinRoom', roomId)
 
 		socketService.socket?.on('draw', (data) => {
 			const { x, y, isDrawing } = data
@@ -25,6 +36,20 @@ export default function Whiteboard(): React.ReactElement {
 				contextRef.current.beginPath()
 				contextRef.current.moveTo(x, y)
 			}
+		})
+
+		socketService.socket?.on('loadCanvas', (drawingData) => {
+			if (!contextRef.current) return
+
+			drawingData.forEach((data: { x: number, y: number, isDrawing: boolean }) => {
+				if (data.isDrawing) {
+					contextRef.current?.lineTo(data.x, data.y)
+					contextRef.current?.stroke()
+				} else {
+					contextRef.current?.beginPath()
+					contextRef.current?.moveTo(data.x, data.y)
+				}
+			})
 		})
 
 		return () => {
@@ -49,11 +74,6 @@ export default function Whiteboard(): React.ReactElement {
 		}, false)
 	}, [])
 
-	React.useEffect(() => {
-		if (!isDrawing) return console.log('Not drawing')
-		console.log('Drawing')
-	}, [isDrawing])
-
 	const getCoordinates = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
 		const canvas = canvasRef.current
 		if (!canvas) return
@@ -75,7 +95,7 @@ export default function Whiteboard(): React.ReactElement {
 		contextRef.current?.moveTo(coordinates.x, coordinates.y)
 		setIsDrawing(true)
 
-		socketService.socket?.emit('draw', { x: coordinates.x, y: coordinates.y, isDrawing: false })
+		socketService.socket?.emit('draw', { roomId, x: coordinates.x, y: coordinates.y, isDrawing: false })
 	}
 
 	const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -87,7 +107,7 @@ export default function Whiteboard(): React.ReactElement {
 		contextRef.current?.lineTo(coordinates.x, coordinates.y)
 		contextRef.current?.stroke()
 
-		socketService.socket?.emit('draw', { x: coordinates.x, y: coordinates.y, isDrawing: true })
+		socketService.socket?.emit('draw', { roomId, x: coordinates.x, y: coordinates.y, isDrawing: true })
 	}
 
 	const stopDrawing = () => {

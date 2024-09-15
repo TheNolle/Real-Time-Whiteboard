@@ -9,9 +9,6 @@ class SocketService {
 		this.socket.on('connect', () => {
 			console.log('[SocketService] Connected to the server via WebSocket', this.socket?.id)
 		})
-		this.socket.on('disconnect', () => {
-			console.log('[SocketService] Disconnected from the server via WebSocket')
-		})
 	}
 
 	disconnect() {

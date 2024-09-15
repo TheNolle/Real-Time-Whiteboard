@@ -10,6 +10,7 @@ import Register from './components/auth/Register'
 import Logout from './components/auth/Logout'
 import Whiteboard from './components/Whiteboard'
 import Welcome from './components/Welcome'
+import RoomManager from './components/RoomManager'
 
 export default function App(): React.ReactElement {
 	const { isAuthenticated } = useAuth()
@@ -17,7 +18,8 @@ export default function App(): React.ReactElement {
 	return (
 		<div className='app'>
 			<Routes>
-				<Route path='/' element={isAuthenticated ? <Whiteboard /> : <Welcome />} />
+				<Route path='/' element={isAuthenticated ? <RoomManager /> : <Welcome />} />
+				<Route path='/whiteboard' element={<Whiteboard />} />
 				{!isAuthenticated && <>
 					<Route path='/login' element={<Login />} />
 					<Route path='/register' element={<Register />} />

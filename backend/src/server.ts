@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import { createServer } from 'http'
-import { Server } from 'socket.io'
 import mongoose from 'mongoose'
 import app from './app'
+import { setupSocket } from './sockets/socketHandler'
 
 // Environment variables
 const PORT = process.env['PORT'] || 5000
@@ -18,32 +18,12 @@ console.clear()
 
 // Create HTTP server and WebSocket server
 const httpServer = createServer(app)
-const io = new Server(httpServer, {
-	cors: {
-		origin: '*'
-	}
-})
-
-// WebSocket setup
-io.on('connection', (socket) => {
-	console.log('Client connected:', socket.id)
-
-	socket.on('draw', (data) => {
-		socket.broadcast.emit('draw', data)
-	})
-
-	socket.on('disconnect', () => {
-		console.log('Client disconnected:', socket.id)
-	})
-})
+setupSocket(httpServer)
 
 // MongoDB connection
 mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`, {
 	useBigInt64: true,
-	auth: {
-		username: MONGO_USER,
-		password: MONGO_PASS
-	},
+	auth: { username: MONGO_USER, password: MONGO_PASS },
 	dbName: MONGO_DB,
 }).then(() => {
 	console.log('MongoDB connected')
