@@ -135,4 +135,4 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to understand the behavior
 
 ---
 
-👨‍💻 Made with ❤️ by Nolly
+👨‍💻 Made with ❤️ by [Nolly](https://thenolle.com/)
