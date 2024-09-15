@@ -27,6 +27,11 @@ const io = new Server(httpServer, {
 // WebSocket setup
 io.on('connection', (socket) => {
 	console.log('Client connected:', socket.id)
+
+	socket.on('draw', (data) => {
+		socket.broadcast.emit('draw', data)
+	})
+
 	socket.on('disconnect', () => {
 		console.log('Client disconnected:', socket.id)
 	})
