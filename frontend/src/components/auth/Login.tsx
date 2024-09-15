@@ -10,6 +10,9 @@ import { useAuth } from '../../contexts/AuthContext'
 // Services
 import authService from '../../services/authService'
 
+// Components
+import { Link } from 'react-router-dom'
+
 export default function Login(): React.ReactElement {
 	const [email, setEmail] = React.useState<string>('')
 	const [password, setPassword] = React.useState<string>('')
@@ -42,6 +45,7 @@ export default function Login(): React.ReactElement {
 				<input type='email' value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Email' required />
 				<input type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' required />
 				<button type='submit'>{loading ? 'Loading...' : 'Login'}</button>
+				<small>Don't have an account? <Link to='/register'>Register</Link></small>
 				{error && <p className='error'>{error}</p>}
 			</form>
 		</div>

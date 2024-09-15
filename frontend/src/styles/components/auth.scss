@@ -58,6 +58,27 @@
 			}
 		}
 
+		small {
+			margin-top: 0.5rem;
+			font-size: 0.875rem;
+			color: #ecf0f1;
+			transition: color 300ms ease-in-out;
+
+			a {
+				text-decoration: none;
+				color: #3498db;
+
+				&:hover {
+					text-decoration: underline;
+					color: #2980b9;
+				}
+
+				&:active {
+					color: #20729b;
+				}
+			}
+		}
+
 		p.error {
 			padding: 0.5rem;
 			margin-top: 0.5rem;

@@ -11,6 +11,9 @@ import { useAuth } from '../../contexts/AuthContext'
 // Services
 import authService from '../../services/authService'
 
+// Components
+import { Link } from 'react-router-dom'
+
 export default function Register(): React.ReactElement {
 	const [username, setUsername] = React.useState<string>('')
 	const [email, setEmail] = React.useState<string>('')
@@ -61,6 +64,7 @@ export default function Register(): React.ReactElement {
 				<input type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' required />
 				<input type='password' value={password2} onChange={(e) => setPassword2(e.target.value)} placeholder='Confirm Password' required />
 				<button type='submit'>{loading ? 'Loading...' : 'Register'}</button>
+				<small>Already have an account? <Link to='/login'>Login</Link></small>
 				{error && <p className='error'>{error}</p>}
 			</form>
 		</div>
