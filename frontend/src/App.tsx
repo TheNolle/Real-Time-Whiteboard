@@ -1,18 +1,29 @@
 import React from 'react'
 
+// Contexts
+import { useAuth } from './contexts/AuthContext'
+
 // Components
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
+import Logout from './components/auth/Logout'
 import Whiteboard from './components/Whiteboard'
+import Welcome from './components/Welcome'
 
 export default function App(): React.ReactElement {
+	const { isAuthenticated } = useAuth()
+
 	return (
 		<div className='app'>
 			<Routes>
-				<Route path='/' element={<Whiteboard />} />
-				<Route path='/login' element={<Login />} />
-				<Route path='/register' element={<Register />} />
+				<Route path='/' element={isAuthenticated ? <Whiteboard /> : <Welcome />} />
+				{!isAuthenticated && <>
+					<Route path='/login' element={<Login />} />
+					<Route path='/register' element={<Register />} />
+				</>}
+				{isAuthenticated && <Route path='/logout' element={<Logout />} />}
+				<Route path='*' element={<Navigate to='/' />} />
 			</Routes>
 		</div>
 	)

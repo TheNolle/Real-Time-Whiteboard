@@ -5,6 +5,9 @@ import ReactDOM from 'react-dom/client'
 import './styles/main.scss'
 import 'react-toastify/dist/ReactToastify.css'
 
+// Contexts
+import { AuthProvider } from './contexts/AuthContext'
+
 // Components
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
@@ -18,7 +21,9 @@ if (!rootElement) {
 		.createRoot(rootElement)
 		.render(
 			<BrowserRouter>
-				<App />
+				<AuthProvider>
+					<App />
+				</AuthProvider>
 				<ToastContainer position='bottom-right' autoClose={3000} limit={5} newestOnTop theme='dark' />
 			</BrowserRouter>
 		)

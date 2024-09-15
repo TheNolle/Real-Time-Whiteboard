@@ -5,6 +5,9 @@ import { validatePassword } from '../../utils/password'
 // Styles
 import '../../styles/components/auth.scss'
 
+// Contexts
+import { useAuth } from '../../contexts/AuthContext'
+
 // Services
 import authService from '../../services/authService'
 
@@ -18,6 +21,7 @@ export default function Register(): React.ReactElement {
 	const [loading, setLoading] = React.useState<boolean>(false)
 
 	const navigate = useNavigate()
+	const { login } = useAuth()
 
 	const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -38,7 +42,8 @@ export default function Register(): React.ReactElement {
 				setError('Password must not contain the domain of the email')
 				return
 			}
-			await authService.register(username, email, password)
+			const data = await authService.register(username, email, password)
+			login(data.token)
 			navigate('/')
 		} catch (error: any) {
 			setError(error.response.data.message || 'Registration failed')
